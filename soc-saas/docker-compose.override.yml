@@ -1,0 +1,28 @@
+version: "3.9"
+
+# Development overrides - mount source code for hot reload
+
+services:
+  siem-service:
+    volumes:
+      - ./backend/siem-service/app:/app/app
+    environment:
+      RELOAD: "true"
+
+  case-service:
+    volumes:
+      - ./backend/case-service/app:/app/app
+    environment:
+      RELOAD: "true"
+
+  ti-service:
+    volumes:
+      - ./backend/ti-service/app:/app/app
+    environment:
+      RELOAD: "true"
+
+  soar-service:
+    volumes:
+      - ./backend/soar-service/app:/app/app
+    environment:
+      RELOAD: "true"

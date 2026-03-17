@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'soc-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'siem-service'
+    static_configs:
+      - targets: ['siem-service:8001']
+    metrics_path: /metrics
+
+  - job_name: 'case-service'
+    static_configs:
+      - targets: ['case-service:8002']
+    metrics_path: /metrics
+
+  - job_name: 'ti-service'
+    static_configs:
+      - targets: ['ti-service:8003']
+    metrics_path: /metrics
+
+  - job_name: 'soar-service'
+    static_configs:
+      - targets: ['soar-service:8004']
+    metrics_path: /metrics
+
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch:9200']
+    metrics_path: /_prometheus/metrics
