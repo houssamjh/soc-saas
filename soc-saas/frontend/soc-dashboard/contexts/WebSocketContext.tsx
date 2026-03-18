@@ -22,7 +22,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const connect = useCallback(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost/ws'
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    const wsUrl = `${proto}://${window.location.host}/ws`
     const url = `${wsUrl}/alerts`
 
     try {
