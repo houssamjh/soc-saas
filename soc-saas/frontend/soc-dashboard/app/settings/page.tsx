@@ -23,19 +23,23 @@ async function checkHealth(name: string, url: string): Promise<HealthResult> {
   }
 }
 
-const SERVICES = [
-  { name: 'SIEM Service', healthUrl: 'http://localhost:8001/health', docsUrl: 'http://localhost:8001/docs' },
-  { name: 'Case Service', healthUrl: 'http://localhost:8002/health', docsUrl: 'http://localhost:8002/docs' },
-  { name: 'TI Service', healthUrl: 'http://localhost:8003/health', docsUrl: 'http://localhost:8003/docs' },
-  { name: 'SOAR Service', healthUrl: 'http://localhost:8004/health', docsUrl: 'http://localhost:8004/docs' },
-  { name: 'Elasticsearch', healthUrl: 'http://localhost:9200/_cluster/health', docsUrl: 'http://localhost:9200' },
-  { name: 'Kibana', healthUrl: 'http://localhost:5601/api/status', docsUrl: 'http://localhost:5601' },
-  { name: 'Kafka UI', healthUrl: 'http://localhost:8080/actuator/health', docsUrl: 'http://localhost:8080' },
-  { name: 'Grafana', healthUrl: 'http://localhost:3000/api/health', docsUrl: 'http://localhost:3000' },
-  { name: 'MinIO', healthUrl: 'http://localhost:9000/minio/health/live', docsUrl: 'http://localhost:9001' },
-  { name: 'Keycloak', healthUrl: 'http://localhost:8443/health/ready', docsUrl: 'http://localhost:8443' },
-  { name: 'Prometheus', healthUrl: 'http://localhost:9090/-/healthy', docsUrl: 'http://localhost:9090' },
-]
+const getServices = () => {
+  const h = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+  return [
+    { name: 'SIEM Service', healthUrl: `/api/siem/health`, docsUrl: `http://${h}:8001/docs` },
+    { name: 'Case Service', healthUrl: `/api/cases/health`, docsUrl: `http://${h}:8002/docs` },
+    { name: 'TI Service', healthUrl: `/api/ti/health`, docsUrl: `http://${h}:8003/docs` },
+    { name: 'SOAR Service', healthUrl: `/api/soar/health`, docsUrl: `http://${h}:8004/docs` },
+    { name: 'Elasticsearch', healthUrl: `http://${h}:9200/_cluster/health`, docsUrl: `http://${h}:9200` },
+    { name: 'Kibana', healthUrl: `http://${h}:5601/api/status`, docsUrl: `http://${h}:5601` },
+    { name: 'Kafka UI', healthUrl: `http://${h}:8080/actuator/health`, docsUrl: `http://${h}:8080` },
+    { name: 'Grafana', healthUrl: `http://${h}:3000/api/health`, docsUrl: `http://${h}:3000` },
+    { name: 'MinIO', healthUrl: `http://${h}:9000/minio/health/live`, docsUrl: `http://${h}:9001` },
+    { name: 'Keycloak', healthUrl: `http://${h}:8443/health/ready`, docsUrl: `http://${h}:8443` },
+    { name: 'Prometheus', healthUrl: `http://${h}:9090/-/healthy`, docsUrl: `http://${h}:9090` },
+  ]
+}
+const SERVICES = typeof window !== 'undefined' ? getServices() : []
 
 export default function SettingsPage() {
   const [health, setHealth] = useState<HealthResult[]>([])
@@ -53,8 +57,9 @@ export default function SettingsPage() {
 
   const checkAll = async () => {
     setChecking(true)
+    const services = getServices()
     const results = await Promise.all(
-      SERVICES.map(s => checkHealth(s.name, s.healthUrl))
+      services.map(s => checkHealth(s.name, s.healthUrl))
     )
     setHealth(results)
     setChecking(false)
@@ -184,16 +189,19 @@ export default function SettingsPage() {
       <div className="bg-[#161b22] border border-[#21262d] rounded-xl p-5">
         <h2 className="text-sm font-semibold text-white mb-4">Quick Links</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            { label: 'Kibana', url: 'http://localhost:5601', desc: 'Log exploration' },
-            { label: 'Grafana', url: 'http://localhost:3000', desc: 'Metrics & dashboards' },
-            { label: 'Kafka UI', url: 'http://localhost:8080', desc: 'Message broker' },
-            { label: 'Keycloak', url: 'http://localhost:8443', desc: 'Auth management' },
-            { label: 'MinIO', url: 'http://localhost:9001', desc: 'Object storage' },
-            { label: 'Prometheus', url: 'http://localhost:9090', desc: 'Metrics collection' },
-            { label: 'SIEM API', url: 'http://localhost:8001/docs', desc: 'API documentation' },
-            { label: 'Elasticsearch', url: 'http://localhost:9200', desc: 'Search engine' },
-          ].map(link => (
+          {(() => {
+            const h = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+            return [
+              { label: 'Kibana', url: `http://${h}:5601`, desc: 'Log exploration' },
+              { label: 'Grafana', url: `http://${h}:3000`, desc: 'Metrics & dashboards' },
+              { label: 'Kafka UI', url: `http://${h}:8080`, desc: 'Message broker' },
+              { label: 'Keycloak', url: `http://${h}:8443`, desc: 'Auth management' },
+              { label: 'MinIO', url: `http://${h}:9001`, desc: 'Object storage' },
+              { label: 'Prometheus', url: `http://${h}:9090`, desc: 'Metrics collection' },
+              { label: 'SIEM API', url: `http://${h}:8001/docs`, desc: 'API documentation' },
+              { label: 'Elasticsearch', url: `http://${h}:9200`, desc: 'Search engine' },
+            ]
+          })().map(link => (
             <a
               key={link.url}
               href={link.url}
