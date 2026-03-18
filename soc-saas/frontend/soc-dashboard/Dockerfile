@@ -13,7 +13,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_API_URL=http://localhost/api
 ENV NEXT_PUBLIC_WS_URL=ws://localhost/ws
-RUN npm run build
+RUN mkdir -p public && npm run build
 
 FROM base AS runner
 WORKDIR /app
@@ -24,7 +24,7 @@ ENV PORT=3001
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
